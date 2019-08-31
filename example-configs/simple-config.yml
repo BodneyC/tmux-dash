@@ -1,0 +1,11 @@
+dashboard:
+  number: 0
+  vim:
+    command: vim
+    split: null
+  htop:
+    command: htop
+    split: 
+      direction: horz
+      from: vim
+      width: 10

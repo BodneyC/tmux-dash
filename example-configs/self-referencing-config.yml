@@ -1,0 +1,14 @@
+dashboard:
+  number: 0
+  vim:
+    command: vim
+    split: null
+  htop:
+    command: htop
+    split: 
+      direction: horz
+      width: 10
+  head:
+    command: "head ~/.config/nvim/init.vim"
+    split:
+      from: vim

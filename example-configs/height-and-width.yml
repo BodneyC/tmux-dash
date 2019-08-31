@@ -1,0 +1,17 @@
+dashboard:
+  number: 0
+  vim:
+    command: vim
+    split: null
+  htop:
+    command: htop
+    split: 
+      direction: horz
+      width: 10
+      height: 20 # Shouldn't do anything
+  head:
+    command: "head ~/.config/nvim/init.vim"
+    split:
+      from: vim
+      width: 10 # Should override dashboard.htop
+      height: 56
