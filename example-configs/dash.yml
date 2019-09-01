@@ -1,0 +1,24 @@
+dashboard:
+  number: 0
+  iftop:
+    command: sudo iftop
+    split: null
+  todo:
+    command: 't ls'
+    split:
+      direction: horz
+      width: 60%
+  clock:
+    command: watch -t -n1 "date +%T|figlet -k"
+    split:
+      from: htop
+      height: 66%
+  htop:
+    command: htop
+    split:
+      height: 50%
+  vim:
+    command: "vim ~/.config/nvim"
+    split:
+      from: todo
+      height: 75%

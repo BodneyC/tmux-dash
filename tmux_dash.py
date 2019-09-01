@@ -26,7 +26,11 @@ class PlaySession:
         self.session = session
         self.config = config
         self.pane_id_dict = {}
+        self.t_height, self.t_width = os.popen('stty size', 'r').read().split()
         self.window = None
+
+    def _percent_conversion(self, s, d):
+        return int((int(s[:-1]) / 100) * int(d))
 
     def _make_split(self, conf):
         pane_id = self.session.attached_pane._pane_id
@@ -55,8 +59,12 @@ class PlaySession:
         )
 
         if 'width' in conf:
+            if isinstance(conf['width'], str):
+                conf['width'] = self._percent_conversion(conf['width'], self.t_width)
             self.session.attached_pane.set_width(conf['width'])
         if 'height' in conf:
+            if isinstance(conf['height'], str):
+                conf['height'] = self._percent_conversion(conf['height'], self.t_height)
             self.session.attached_pane.set_height(conf['height'])
 
     def _setup_panes(self, conf):
@@ -116,7 +124,7 @@ def validate_config(config):
                             if split_val not in window:
                                 raise ConfigParseError(f'\nPane not found:\n {s_err_str}')
                         if split_name == 'width' or directive == 'height':
-                            if not isinstance(split_val, int):
+                            if not isinstance(split_val, int) and split_val[-1] != '%':
                                 raise ConfigParseError(f'\nInvalid value:\n {s_err_str}')
 
 
@@ -160,7 +168,7 @@ def main():
 
 
 if __name__ == '__main__':
-    sys.tracebacklimit = 0
+    #  sys.tracebacklimit = 0
     try:
         main()
     except KeyboardInterrupt:
