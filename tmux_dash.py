@@ -26,7 +26,8 @@ class PlaySession:
         self.session = session
         self.config = config
         self.pane_id_dict = {}
-        self.t_height, self.t_width = os.popen('stty size', 'r').read().split()
+        self.t_height = None
+        self.t_width = None
         self.window = None
 
     def _percent_conversion(self, s, d):
@@ -69,15 +70,21 @@ class PlaySession:
 
     def _setup_panes(self, conf):
         for pane_name, pane in conf.items():
-            if pane['split']:
+            if 'split' in pane and pane['split']:
                 self._make_split(pane['split'])
             self.pane_id_dict[pane_name] = self.session.attached_pane._pane_id
-            if pane['command']:
+            if 'command' in pane:
                 self.session.attached_pane.send_keys(pane['command'])
-            elif pane['module']:
+            elif 'module' in pane:
                 self.session.attached_pane.send_keys(f'{MODULE_DIR}/{pane["module"]}')
 
+    def _get_terminal_size(self):
+        self.session.attached_pane.cmd('resize-pane', '-Z')
+        self.t_height, self.t_width = os.popen('stty size', 'r').read().split()
+        self.session.attached_pane.cmd('resize-pane', '-Z')
+
     def play_session(self):
+        self._get_terminal_size()
         for window_name, conf in self.config.items():
             number = conf.pop('number')
             try:

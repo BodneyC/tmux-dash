@@ -54,6 +54,10 @@ So, something like this,
   +-------------------+--------+
 ```
 
+Note here that ordering is important, same as setting up a window regularly in tmux. So if you create two panes, `a` and `b`, then split `a` horizontally, you have two on the top, one on the bottom. However, create `a` and `b` horizontally, then split `a` vertically, you get two on the left and one on the right.
+
+The splits are literally made in the order they appear in the Yaml, and so, to reiterate, ordering is important.
+
 The meta config would look something like the following:
 
 ```
