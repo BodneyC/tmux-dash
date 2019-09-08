@@ -1,5 +1,6 @@
 dashboard:
   number: 0
+  focus: htop
   iftop:
     command: sudo iftop
     split: null
@@ -18,7 +19,6 @@ dashboard:
     split:
       height: 50%
   vim:
-    command: "vim ~/.config/nvim"
     split:
       from: todo
       height: 75%

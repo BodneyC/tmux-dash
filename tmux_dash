@@ -29,6 +29,7 @@ class PlaySession:
         self.t_height = None
         self.t_width = None
         self.window = None
+        self.focus = None
 
     def _percent_conversion(self, s, d):
         return int((int(s[:-1]) / 100) * int(d))
@@ -87,12 +88,25 @@ class PlaySession:
         self._get_terminal_size()
         for window_name, conf in self.config.items():
             number = conf.pop('number')
+            if 'focus' in conf:
+                self.focus = conf.pop('focus')
             try:
                 self.session.new_window(window_name, window_index=number)
             except libtmux.exc.LibTmuxException:
                 self.log.warning(f'Window {number} exists, results may vary')
+                if not are_you_sure('Continue? [yN]: '):
+                    continue
             self.window = self.session.select_window(number)
             self._setup_panes(conf)
+            if self.focus:
+                self.window.select_pane(self.pane_id_dict[self.focus])
+            self.focus = None
+
+
+def are_you_sure(msg):
+    def question(q): return input(q).lower().strip()[0] == "y"
+    return question(msg)
+
 
 
 # Don't judge me...
@@ -111,6 +125,10 @@ def validate_config(config):
             if pane_name == 'number':
                 if not isinstance(pane, int):
                     raise ConfigParseError(f'\nInvalid window number:\n {err_str}')
+                continue
+            if pane_name == 'focus':
+                if pane not in window:
+                    raise ConfigParseError(f'\nInvalid focus reference:\n {err_str}')
                 continue
             if 'split' not in pane:
                 raise ConfigParseError(f'\n"split" key missing:\n {err_str}')
@@ -175,7 +193,7 @@ def main():
 
 
 if __name__ == '__main__':
-    #  sys.tracebacklimit = 0
+    sys.tracebacklimit = 0
     try:
         main()
     except KeyboardInterrupt:

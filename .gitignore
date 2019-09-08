@@ -1,1 +1,5 @@
 .virkspace
+*.egg-info
+build
+dist
+install.sh
