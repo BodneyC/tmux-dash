@@ -93,9 +93,10 @@ class PlaySession:
             try:
                 self.session.new_window(window_name, window_index=number)
             except libtmux.exc.LibTmuxException:
-                self.log.warning(f'Window {number} exists, results may vary')
-                if not are_you_sure('Continue? [yN]: '):
-                    continue
+                if number != 1:
+                    self.log.warning(f'Window {number} exists, results may vary')
+                    if not are_you_sure('Continue? [yN]: '):
+                        continue
             self.window = self.session.select_window(number)
             self._setup_panes(conf)
             if self.focus:

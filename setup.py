@@ -6,7 +6,7 @@ with open('README.md') as f:
 
 setuptools.setup(
     name='tmux_dash',
-    version='0.0.1',
+    version='0.0.2',
     scripts=['tmux_dash'],
     author='BenJC',
     author_email='benjamin.carrington@gmail.com',
@@ -15,6 +15,9 @@ setuptools.setup(
     long_description_content_type='text/markdown',
     url='https://github.com/bodneyc/tmux_dash',
     packages=setuptools.find_packages(),
+    install_requires=[
+        'libtmux'
+    ],
     classifiers=[
         'Programming Language :: Python :: 3',
         'License :: OSI Approved :: GNU General Public License v2 (GPLv2)'
