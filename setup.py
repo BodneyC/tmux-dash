@@ -6,7 +6,7 @@ with open('README.md') as f:
 
 setuptools.setup(
     name='tmux_dash',
-    version='0.0.3',
+    version='0.0.4',
     scripts=['tmux_dash'],
     author='BenJC',
     author_email='benjamin.carrington@gmail.com',
