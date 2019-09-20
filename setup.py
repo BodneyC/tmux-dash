@@ -1,4 +1,5 @@
 import setuptools
+from __init__ import version
 
 
 with open('README.md') as f:
@@ -6,7 +7,7 @@ with open('README.md') as f:
 
 setuptools.setup(
     name='tmux_dash',
-    version='0.0.4',
+    version=version,
     scripts=['tmux_dash'],
     author='BenJC',
     author_email='benjamin.carrington@gmail.com',

@@ -8,6 +8,8 @@ import argparse
 
 import libtmux
 
+from __init__ import version
+
 logging.basicConfig(level=logging.WARN)
 
 DEFAULT_CONFIG = os.environ.get('TMUX_DASH_CONFIG', os.environ.get('HOME', '.')
@@ -129,9 +131,9 @@ def validate_pane(pane_name, pane, window_panes, err_str):
             raise ConfigParseError(f'\nInvalid directive:\n {d_err_str}')
         if directive == 'split' and pane[directive]:
             for split_name, split_val in pane[directive].items():
-                if split_name not in split_directives:
-                    raise ConfigParseError(f'\nInvalid directive:\n {d_err_str}')
                 s_err_str = f'split directive: {split_name}\n {d_err_str}'
+                if split_name not in split_directives:
+                    raise ConfigParseError(f'\nInvalid directive:\n {s_err_str}')
                 if split_name == 'direction':
                     if split_val != 'horz' and split_val != 'vert':
                         raise ConfigParseError(f'\nInvalid value:\n {s_err_str}')
@@ -153,7 +155,7 @@ def validate_config(config):
         if 'panes' not in window:
             raise ConfigParseError(f'\nNo panes for window: {window_name}')
         for directive_name, directives in window.items():
-            err_str = f'directives: {directive_name}\n window: {window_name}'
+            err_str = f' directives: {directive_name}\n window: {window_name}'
             if directive_name == 'number':
                 if not isinstance(directives, int):
                     raise ConfigParseError(f'\nInvalid window number:\n {err_str}')
@@ -164,7 +166,8 @@ def validate_config(config):
                 continue
             if directive_name == 'panes':
                 for pane_name, pane in directives.items():
-                    validate_pane(pane_name, pane, directives, err_str)
+                    s_err_str = f'pane: {pane_name}\n{err_str}'
+                    validate_pane(pane_name, pane, directives, s_err_str)
 
 
 def find_session(i, n):
@@ -188,6 +191,7 @@ def read_config(fn):
 
 def parse_args():
     parser = argparse.ArgumentParser()
+    parser.add_argument('-v', '--version', action='store_true')
     parser.add_argument('-c', '--config', type=str, default=DEFAULT_CONFIG)
     session_id = parser.add_mutually_exclusive_group()
     session_id.add_argument('-i', '--session-id', type=str)
@@ -197,13 +201,16 @@ def parse_args():
 
 def main():
     args = parse_args()
-    config = read_config(args.config)
-    validate_config(config)
-    session = find_session(args.session_id, args.session_name)
-    if not session:
-        raise libtmux.exc.TmuxSessionExists
-    play = PlaySession(session, config)
-    play.play_session()
+    if args.version:
+        print(version)
+    else:
+        config = read_config(args.config)
+        validate_config(config)
+        session = find_session(args.session_id, args.session_name)
+        if not session:
+            raise libtmux.exc.TmuxSessionExists
+        play = PlaySession(session, config)
+        play.play_session()
 
 
 if __name__ == '__main__':
