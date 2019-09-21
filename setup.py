@@ -1,9 +1,10 @@
 import setuptools
-from __init__ import version
-
 
 with open('README.md') as f:
     desc = f.read()
+
+with open('version') as f:
+    version = f.read().strip()
 
 setuptools.setup(
     name='tmux_dash',
