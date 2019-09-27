@@ -96,6 +96,9 @@ class PlaySession:
         for window_name, window in self.config.items():
             number = window.pop('number')
             panes = window.pop('panes')
+            if self.config.window:
+                if number != self.config.window:
+                    continue
             if 'focus' in window:
                 self.focus = window.pop('focus')
             try:
@@ -191,6 +194,7 @@ def parse_args():
     parser = argparse.ArgumentParser()
     parser.add_argument('-v', '--version', action='store_true')
     parser.add_argument('-c', '--config', type=str, default=DEFAULT_CONFIG)
+    parser.add_argument('-w', '--window', type=str, help="Specify a single window by number")
     session_id = parser.add_mutually_exclusive_group()
     session_id.add_argument('-i', '--session-id', type=str)
     session_id.add_argument('-n', '--session-name', type=str)
