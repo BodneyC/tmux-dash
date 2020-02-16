@@ -12,7 +12,8 @@ logging.basicConfig(level=logging.WARN)
 
 DEFAULT_CONFIG = os.environ.get('TMUX_DASH_CONFIG', os.environ.get('HOME', '.')
                                 + '/.config/tmux-dash/config.yml')
-MODULE_DIR = os.environ.get('TMUX_DASH_MODULE_DIR', os.path.dirname(os.path.realpath(__file__)) + '/modules')
+MODULE_DIR = os.environ.get('TMUX_DASH_MODULE_DIR', os.path.dirname(
+    os.path.realpath(__file__)) + '/modules')
 TMUX_VAR = os.environ.get('TMUX', None)
 
 
@@ -42,7 +43,8 @@ class PlaySession:
                     self.pane_id_dict[conf['from']]
                 )._pane_id
             else:
-                self.log.warning(f'{conf["from"]} not assigned, check ordering')
+                self.log.warning(
+                    f'{conf["from"]} not assigned, check ordering')
 
         try:
             from_pane = self.window.select_pane(pane_id)
@@ -66,11 +68,13 @@ class PlaySession:
 
         if 'width' in conf:
             if isinstance(conf['width'], str):
-                conf['width'] = self._percent_conversion(conf['width'], self.t_width)
+                conf['width'] = self._percent_conversion(
+                    conf['width'], self.t_width)
             self.session.attached_pane.set_width(conf['width'])
         if 'height' in conf:
             if isinstance(conf['height'], str):
-                conf['height'] = self._percent_conversion(conf['height'], self.t_height)
+                conf['height'] = self._percent_conversion(
+                    conf['height'], self.t_height)
             self.session.attached_pane.set_height(conf['height'])
 
     def _setup_panes(self, conf):
@@ -82,9 +86,14 @@ class PlaySession:
                 self._make_split(pane['split'], start_dir)
             self.pane_id_dict[pane_name] = self.session.attached_pane._pane_id
             if 'command' in pane:
-                self.session.attached_pane.send_keys(pane['command'])
+                suppress_history = False
+                if 'suppress_history' in pane:
+                    suppress_history = pane['suppress_history']
+                self.session.attached_pane.send_keys(
+                    pane['command'], suppress_history=suppress_history)
             elif 'module' in pane:
-                self.session.attached_pane.send_keys(f'{MODULE_DIR}/{pane["module"]}')
+                self.session.attached_pane.send_keys(
+                    f'{MODULE_DIR}/{pane["module"]}')
 
     def _get_terminal_size(self):
         self.session.attached_pane.cmd('resize-pane', '-Z')
@@ -96,7 +105,7 @@ class PlaySession:
         for window_name, window in self.config.items():
             number = window.pop('number')
             panes = window.pop('panes')
-            if self.config.window:
+            if 'window' in self.config:
                 if number != self.config.window:
                     continue
             if 'focus' in window:
@@ -105,7 +114,8 @@ class PlaySession:
                 self.session.new_window(window_name, window_index=number)
             except libtmux.exc.LibTmuxException:
                 if number != 1:
-                    self.log.warning(f'Window {number} exists, results may vary')
+                    self.log.warning(
+                        f' Window {number} exists, results may vary')
                     if not are_you_sure('Continue? [yN]: '):
                         self.focus = None
                         continue
@@ -123,7 +133,7 @@ def are_you_sure(msg):
 
 # Don't judge me...
 def validate_pane(pane_name, pane, window_panes, err_str):
-    pane_directives = ['command', 'dir', 'split']
+    pane_directives = ['command', 'suppress_history', 'dir', 'split']
     split_directives = ['direction', 'from', 'width', 'height']
 
     for directive in pane:
@@ -134,16 +144,20 @@ def validate_pane(pane_name, pane, window_panes, err_str):
             for split_name, split_val in pane[directive].items():
                 s_err_str = f'split directive: {split_name}\n {d_err_str}'
                 if split_name not in split_directives:
-                    raise ConfigParseError(f'\nInvalid directive:\n {s_err_str}')
+                    raise ConfigParseError(
+                        f'\nInvalid directive:\n {s_err_str}')
                 if split_name == 'direction':
                     if split_val != 'horz' and split_val != 'vert':
-                        raise ConfigParseError(f'\nInvalid value:\n {s_err_str}')
+                        raise ConfigParseError(
+                            f'\nInvalid value:\n {s_err_str}')
                 if split_name == 'from':
                     if split_val not in window_panes:
-                        raise ConfigParseError(f'\nPane not found:\n {s_err_str}')
+                        raise ConfigParseError(
+                            f'\nPane not found:\n {s_err_str}')
                 if split_name == 'width' or directive == 'height':
                     if not isinstance(split_val, int) and split_val[-1] != '%':
-                        raise ConfigParseError(f'\nInvalid value:\n {s_err_str}')
+                        raise ConfigParseError(
+                            f'\nInvalid value:\n {s_err_str}')
 
 
 def validate_config(config):
@@ -159,11 +173,13 @@ def validate_config(config):
             err_str = f' directives: {directive_name}\n window: {window_name}'
             if directive_name == 'number':
                 if not isinstance(directives, int):
-                    raise ConfigParseError(f'\nInvalid window number:\n {err_str}')
+                    raise ConfigParseError(
+                        f'\nInvalid window number:\n {err_str}')
                 continue
             if directive_name == 'focus':
                 if directive_name not in window:
-                    raise ConfigParseError(f'\nInvalid focus reference:\n {err_str}')
+                    raise ConfigParseError(
+                        f'\nInvalid focus reference:\n {err_str}')
                 continue
             if directive_name == 'panes':
                 for pane_name, pane in directives.items():
@@ -194,7 +210,8 @@ def parse_args():
     parser = argparse.ArgumentParser()
     parser.add_argument('-v', '--version', action='store_true')
     parser.add_argument('-c', '--config', type=str, default=DEFAULT_CONFIG)
-    parser.add_argument('-w', '--window', type=str, help="Specify a single window by number")
+    parser.add_argument('-w', '--window', type=str,
+                        help="Specify a single window by number")
     session_id = parser.add_mutually_exclusive_group()
     session_id.add_argument('-i', '--session-id', type=str)
     session_id.add_argument('-n', '--session-name', type=str)
